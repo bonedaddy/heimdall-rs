@@ -4,4 +4,4 @@ fmt:
 	
 .PHONY: lint
 lint:
-	cargo +nightly clippy --fix -Z unstable-options --release --all --broken-code
+	cargo +nightly clippy --fix -Z unstable-options --release --all
