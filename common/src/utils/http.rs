@@ -24,8 +24,7 @@ pub async fn get_json_from_url(url: String, attempts_remaining: u8) -> Option<Va
         };
         let body_bytes = res.bytes().await.ok()?;
         let body_msg = String::from_utf8(body_bytes.to_vec()).ok()?;
-        println!("{}", body_msg);
-        return Some(serde_json::to_value(&body_bytes[..]).ok()?);
+        return Some(serde_json::from_str(&body_msg).ok()?);
     }
     None
 }
