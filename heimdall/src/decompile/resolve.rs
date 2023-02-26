@@ -10,7 +10,7 @@ use indicatif::ProgressBar;
 use super::util::Function;
 
 // resolve a list of function selectors to their possible signatures
-pub fn resolve_function_selectors(
+pub async fn resolve_function_selectors(
     selectors: Vec<String>,
     logger: &Logger,
 ) -> HashMap<String, Vec<ResolvedFunction>> {
@@ -27,8 +27,8 @@ pub fn resolve_function_selectors(
         let resolve_progress = resolve_progress.clone();
 
         // create a new thread for each selector
-        threads.push(thread::spawn(move || {
-            match resolve_function_signature(&selector) {
+        threads.push(tokio::task::spawn(async move {
+            match resolve_function_signature(&selector).await {
                 Some(function) => {
                     let mut _resolved_functions = function_clone.lock().unwrap();
                     let mut _resolve_progress = resolve_progress.lock().unwrap();
@@ -43,7 +43,7 @@ pub fn resolve_function_selectors(
 
     // wait for all threads to finish
     for thread in threads {
-        thread.join().unwrap();
+        thread.await.unwrap();
     }
 
     resolve_progress.lock().unwrap().finish_and_clear();

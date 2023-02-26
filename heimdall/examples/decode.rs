@@ -1,9 +1,10 @@
 use heimdall::decode::decode_calldata;
 
-fn main() {
+#[tokio::main]
+async fn main() {
 
     // Decode the calldata and save the results.
-    println!("{:#?}", decode_calldata(CALLDATA.to_string()));
+    println!("{:#?}", decode_calldata(CALLDATA.to_string()).await);
 
 }
 

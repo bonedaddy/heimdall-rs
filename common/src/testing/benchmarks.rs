@@ -1,6 +1,10 @@
-use std::{time::Instant, thread, io, io::Write};
+use std::{time::Instant, thread, io, io::Write, future::Future};
 
-pub fn benchmark(benchmark_name: &str, runs: usize, to_bench: fn()) {
+pub async fn benchmark<F, Fut>(benchmark_name: &str, runs: usize, to_bench: F)
+where 
+    F: Fn() -> Fut,
+    Fut: Future<Output =  ()>
+{
     let mut time = 0usize;
     let mut max = usize::MIN;
     let mut min = usize::MAX;
@@ -10,7 +14,7 @@ pub fn benchmark(benchmark_name: &str, runs: usize, to_bench: fn()) {
 
     for _ in 0..runs {
         let start_time = Instant::now();
-        let _ = to_bench();
+        let _ = to_bench().await;
         let end_time = start_time.elapsed().as_millis() as usize;
         
         max = std::cmp::max(max, end_time);

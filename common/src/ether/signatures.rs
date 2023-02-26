@@ -26,7 +26,7 @@ pub struct ResolvedLog {
     pub inputs: Vec<String>,
 }
 
-pub fn resolve_function_signature(signature: &String) -> Option<Vec<ResolvedFunction>> {
+pub async fn resolve_function_signature(signature: &String) -> Option<Vec<ResolvedFunction>> {
 
     // get cached results
     match read_cache::<Vec<ResolvedFunction>>(&format!("selector.{}", signature)) {
@@ -40,7 +40,7 @@ pub fn resolve_function_signature(signature: &String) -> Option<Vec<ResolvedFunc
     };
 
     // get function possibilities from 4byte
-    let signatures = match get_json_from_url(format!("https://api.openchain.xyz/signature-database/v1/lookup?function=0x{}", &signature), 3) {
+    let signatures = match get_json_from_url(format!("https://api.openchain.xyz/signature-database/v1/lookup?function=0x{}", &signature), 3).await {
         Some(signatures) => signatures,
         None => return None
     };
@@ -96,7 +96,7 @@ pub fn resolve_function_signature(signature: &String) -> Option<Vec<ResolvedFunc
 
 }
 
-pub fn resolve_error_signature(signature: &String) -> Option<Vec<ResolvedError>> {
+pub async fn resolve_error_signature(signature: &String) -> Option<Vec<ResolvedError>> {
 
     // get cached results
     match read_cache::<Vec<ResolvedError>>(&format!("selector.{}", signature)) {
@@ -110,7 +110,7 @@ pub fn resolve_error_signature(signature: &String) -> Option<Vec<ResolvedError>>
     };
 
     // get function possibilities from 4byte
-    let signatures = match get_json_from_url(format!("https://api.openchain.xyz/signature-database/v1/lookup?function=0x{}", &signature), 3) {
+    let signatures = match get_json_from_url(format!("https://api.openchain.xyz/signature-database/v1/lookup?function=0x{}", &signature), 3).await {
         Some(signatures) => signatures,
         None => return None
     };
@@ -166,7 +166,7 @@ pub fn resolve_error_signature(signature: &String) -> Option<Vec<ResolvedError>>
 }
 
 
-pub fn resolve_event_signature(signature: &String) -> Option<Vec<ResolvedLog>> {
+pub async fn resolve_event_signature(signature: &String) -> Option<Vec<ResolvedLog>> {
 
     // get cached results
     match read_cache::<Vec<ResolvedLog>>(&format!("selector.{}", signature)) {
@@ -180,7 +180,7 @@ pub fn resolve_event_signature(signature: &String) -> Option<Vec<ResolvedLog>> {
     };
 
     // get function possibilities from 4byte
-    let signatures = match get_json_from_url(format!("https://api.openchain.xyz/signature-database/v1/lookup?event=0x{}", &signature), 3) {
+    let signatures = match get_json_from_url(format!("https://api.openchain.xyz/signature-database/v1/lookup?event=0x{}", &signature), 3).await {
         Some(signatures) => signatures,
         None => return None
     };

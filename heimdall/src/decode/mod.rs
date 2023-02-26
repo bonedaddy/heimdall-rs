@@ -49,7 +49,7 @@ pub struct DecodeArgs {
 
 
 #[allow(deprecated)]
-pub fn decode(args: DecodeArgs) {
+pub async fn decode(args: DecodeArgs) {
     let (logger, mut trace)= Logger::new(args.verbose.log_level().unwrap().as_str());
     let calldata: String;
 
@@ -151,7 +151,7 @@ pub fn decode(args: DecodeArgs) {
     };
 
     // get the function signature possibilities
-    let potential_matches = match resolve_function_signature(&function_selector) {
+    let potential_matches = match resolve_function_signature(&function_selector).await {
         Some(signatures) => signatures,
         None => Vec::new()
     };
@@ -329,7 +329,7 @@ pub fn decode(args: DecodeArgs) {
 /// let potential_matches = decode_calldata(CALLDATA.to_string());
 #[allow(deprecated)]
 #[allow(dead_code)]
-pub fn decode_calldata(calldata: String) -> Option<Vec<ResolvedFunction>> {
+pub async fn decode_calldata(calldata: String) -> Option<Vec<ResolvedFunction>> {
     let (logger, _) = Logger::new("ERROR");
 
     // parse the two parts of calldata, inputs and selector
@@ -343,7 +343,7 @@ pub fn decode_calldata(calldata: String) -> Option<Vec<ResolvedFunction>> {
     };
 
     // get the function signature possibilities
-    let potential_matches = match resolve_function_signature(&function_selector) {
+    let potential_matches = match resolve_function_signature(&function_selector).await {
         Some(signatures) => signatures,
         None => Vec::new()
     };

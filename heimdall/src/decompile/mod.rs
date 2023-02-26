@@ -75,7 +75,7 @@ pub struct DecompilerArgs {
 
 }
 
-pub fn decompile(args: DecompilerArgs) {
+pub async fn decompile(args: DecompilerArgs) {
     use std::time::Instant;
     let now = Instant::now();
 
@@ -262,7 +262,7 @@ pub fn decompile(args: DecompilerArgs) {
 
     let mut resolved_selectors = HashMap::new();
     if !args.skip_resolving {
-        resolved_selectors = resolve_function_selectors(selectors.clone(), &logger);
+        resolved_selectors = resolve_function_selectors(selectors.clone(), &logger).await;
         logger.info(&format!("resolved {} possible functions from {} detected selectors.", resolved_selectors.len(), selectors.len()));
     }
     else {
@@ -459,7 +459,7 @@ pub fn decompile(args: DecompilerArgs) {
                 let resolved_error_selectors = resolve_error_signature(&error_selector);
 
                 // only continue if we have matches
-                match resolved_error_selectors {
+                match resolved_error_selectors.await {
                     Some(resolved_error_selectors) => {
 
                         let mut selected_error_index: u8 = 0;
@@ -508,7 +508,7 @@ pub fn decompile(args: DecompilerArgs) {
                 let resolved_event_selectors = resolve_event_signature(&event_selector);
 
                 // only continue if we have matches
-                match resolved_event_selectors {
+                match resolved_event_selectors.await {
                     Some(resolved_event_selectors) => {
 
                         let mut selected_event_index: u8 = 0;
@@ -677,7 +677,7 @@ impl DecompileBuilder where {
 
     /// Starts the decompilation.
     #[allow(dead_code)]
-    pub fn decompile(self) {
-        decompile(self.args)
+    pub async fn decompile(self) {
+        decompile(self.args).await
     }
 }
