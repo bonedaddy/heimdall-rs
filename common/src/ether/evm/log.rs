@@ -1,5 +1,4 @@
-use ethers::{prelude::U256, abi::AbiEncode};
-
+use ethers::{abi::AbiEncode, prelude::U256};
 
 #[derive(Clone, Debug)]
 pub struct Log {
@@ -8,15 +7,12 @@ pub struct Log {
     pub data: String,
 }
 
-
 impl Log {
-
     // Implements a new log with the given index and "emits"
     // the log at the given index.
     pub fn new(index: u128, topics: Vec<U256>, data: String) -> Log {
-
         let mut topics_as_strings = Vec::new();
-        
+
         for topic in topics {
             topics_as_strings.push(topic.encode_hex().replace("0x", ""));
         }
@@ -27,6 +23,4 @@ impl Log {
             data: data,
         }
     }
-
-    
 }

@@ -1,13 +1,12 @@
-
 #[cfg(test)]
 mod vm_tests {
 
     use std::str::FromStr;
 
-    use ethers::{prelude::U256};
+    use ethers::prelude::U256;
 
     use crate::ether::evm::vm::VM;
-    
+
     // creates a new test VM with calldata.
     fn new_test_vm(bytecode: &str) -> VM {
         VM::new(
@@ -23,13 +22,11 @@ mod vm_tests {
 
     #[test]
     fn test_stop_vm() {
-
         let mut vm = new_test_vm("0x00");
         vm.execute();
 
         assert_eq!(vm.returndata, "0x");
         assert_eq!(vm.exitcode, 0);
-
     }
 
     #[test]
@@ -43,7 +40,9 @@ mod vm_tests {
 
     #[test]
     fn test_add() {
-        let mut vm = new_test_vm("0x600a600a017fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff600101");
+        let mut vm = new_test_vm(
+            "0x600a600a017fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff600101",
+        );
         vm.execute();
 
         assert_eq!(vm.stack.peek(1).value, U256::from_str("0x14").unwrap());
@@ -52,11 +51,17 @@ mod vm_tests {
 
     #[test]
     fn test_mul() {
-        let mut vm = new_test_vm("0x600a600a027fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff600202");
+        let mut vm = new_test_vm(
+            "0x600a600a027fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff600202",
+        );
         vm.execute();
 
         assert_eq!(vm.stack.peek(1).value, U256::from_str("0x64").unwrap());
-        assert_eq!(vm.stack.peek(0).value, U256::from_str("0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe").unwrap());
+        assert_eq!(
+            vm.stack.peek(0).value,
+            U256::from_str("0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe")
+                .unwrap()
+        );
     }
 
     #[test]
@@ -65,7 +70,11 @@ mod vm_tests {
         vm.execute();
 
         assert_eq!(vm.stack.peek(1).value, U256::from_str("0x00").unwrap());
-        assert_eq!(vm.stack.peek(0).value, U256::from_str("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff").unwrap());
+        assert_eq!(
+            vm.stack.peek(0).value,
+            U256::from_str("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+                .unwrap()
+        );
     }
 
     #[test]
@@ -125,7 +134,11 @@ mod vm_tests {
         vm.execute();
 
         assert_eq!(vm.stack.peek(1).value, U256::from_str("0x01").unwrap());
-        assert_eq!(vm.stack.peek(0).value, U256::from_str("0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe").unwrap());
+        assert_eq!(
+            vm.stack.peek(0).value,
+            U256::from_str("0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe")
+                .unwrap()
+        );
     }
 
     #[test]
@@ -184,7 +197,11 @@ mod vm_tests {
         let mut vm = new_test_vm("0x60ff60000b607f60000b");
         vm.execute();
 
-        assert_eq!(vm.stack.peek(1).value, U256::from_str("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff").unwrap());
+        assert_eq!(
+            vm.stack.peek(1).value,
+            U256::from_str("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+                .unwrap()
+        );
         assert_eq!(vm.stack.peek(0).value, U256::from_str("0x7f").unwrap());
     }
 
@@ -208,7 +225,9 @@ mod vm_tests {
 
     #[test]
     fn test_slt() {
-        let mut vm = new_test_vm("0x60097fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff12600a600a12");
+        let mut vm = new_test_vm(
+            "0x60097fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff12600a600a12",
+        );
         vm.execute();
 
         assert_eq!(vm.stack.peek(1).value, U256::from_str("0x01").unwrap());
@@ -217,7 +236,9 @@ mod vm_tests {
 
     #[test]
     fn test_sgt() {
-        let mut vm = new_test_vm("0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff600913600a600a13");
+        let mut vm = new_test_vm(
+            "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff600913600a600a13",
+        );
         vm.execute();
 
         assert_eq!(vm.stack.peek(1).value, U256::from_str("0x01").unwrap());
@@ -274,7 +295,11 @@ mod vm_tests {
         let mut vm = new_test_vm("0x600019");
         vm.execute();
 
-        assert_eq!(vm.stack.peek(0).value, U256::from_str("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff").unwrap());
+        assert_eq!(
+            vm.stack.peek(0).value,
+            U256::from_str("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+                .unwrap()
+        );
     }
 
     #[test]
@@ -292,7 +317,11 @@ mod vm_tests {
         vm.execute();
 
         assert_eq!(vm.stack.peek(1).value, U256::from_str("0x02").unwrap());
-        assert_eq!(vm.stack.peek(0).value, U256::from_str("0xF000000000000000000000000000000000000000000000000000000000000000").unwrap());
+        assert_eq!(
+            vm.stack.peek(0).value,
+            U256::from_str("0xF000000000000000000000000000000000000000000000000000000000000000")
+                .unwrap()
+        );
     }
 
     #[test]
@@ -330,10 +359,16 @@ mod vm_tests {
 
     #[test]
     fn test_sha3() {
-        let mut vm = new_test_vm("0x7fffffffff000000000000000000000000000000000000000000000000000000006000526004600020");
+        let mut vm = new_test_vm(
+            "0x7fffffffff000000000000000000000000000000000000000000000000000000006000526004600020",
+        );
         vm.execute();
 
-        assert_eq!(vm.stack.peek(0).value, U256::from_str("0x29045A592007D0C246EF02C2223570DA9522D0CF0F73282C79A1BC8F0BB2C238").unwrap());
+        assert_eq!(
+            vm.stack.peek(0).value,
+            U256::from_str("0x29045A592007D0C246EF02C2223570DA9522D0CF0F73282C79A1BC8F0BB2C238")
+                .unwrap()
+        );
     }
 
     #[test]
@@ -341,8 +376,16 @@ mod vm_tests {
         let mut vm = new_test_vm("600035601f35");
         vm.execute();
 
-        assert_eq!(vm.stack.peek(1).value, U256::from_str("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF").unwrap());
-        assert_eq!(vm.stack.peek(0).value, U256::from_str("0xFF00000000000000000000000000000000000000000000000000000000000000").unwrap());
+        assert_eq!(
+            vm.stack.peek(1).value,
+            U256::from_str("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
+                .unwrap()
+        );
+        assert_eq!(
+            vm.stack.peek(0).value,
+            U256::from_str("0xFF00000000000000000000000000000000000000000000000000000000000000")
+                .unwrap()
+        );
     }
 
     #[test]
@@ -358,7 +401,10 @@ mod vm_tests {
         // returndatacopy, calldatacopy, etc share same code.
         let mut vm = new_test_vm("0x60ff6000600037");
         vm.execute();
-        assert_eq!(vm.memory.read(0, 32), "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+        assert_eq!(
+            vm.memory.read(0, 32),
+            "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+        );
     }
 
     #[test]
@@ -383,7 +429,10 @@ mod vm_tests {
         let mut vm = new_test_vm("0x60ff600053");
         vm.execute();
 
-        assert_eq!(vm.memory.read(0, 32), "ff00000000000000000000000000000000000000000000000000000000000000")
+        assert_eq!(
+            vm.memory.read(0, 32),
+            "ff00000000000000000000000000000000000000000000000000000000000000"
+        )
     }
 
     #[test]
@@ -408,7 +457,10 @@ mod vm_tests {
         let mut vm = new_test_vm("0x60fe56");
         vm.execute();
 
-        assert_eq!(U256::from(vm.instruction as u128), U256::from_str("0xff").unwrap());
+        assert_eq!(
+            U256::from(vm.instruction as u128),
+            U256::from_str("0xff").unwrap()
+        );
     }
 
     #[test]
@@ -416,13 +468,19 @@ mod vm_tests {
         let mut vm = new_test_vm("0x600160fe57");
         vm.execute();
 
-        assert_eq!(U256::from(vm.instruction as u128), U256::from_str("0xff").unwrap());
+        assert_eq!(
+            U256::from(vm.instruction as u128),
+            U256::from_str("0xff").unwrap()
+        );
 
         let mut vm = new_test_vm("0x600060fe5758");
         vm.execute();
 
-        assert_eq!(U256::from(vm.instruction as u128), U256::from_str("0x07").unwrap());
-        
+        assert_eq!(
+            U256::from(vm.instruction as u128),
+            U256::from_str("0x07").unwrap()
+        );
+
         // PC test
         assert_eq!(vm.stack.peek(0).value, U256::from_str("0x07").unwrap());
     }
@@ -444,7 +502,6 @@ mod vm_tests {
     }
 }
 
-
 #[cfg(test)]
 mod opcode_tests {
     use ethers::types::U256;
@@ -453,22 +510,26 @@ mod opcode_tests {
 
     #[test]
     fn test_wrapping_opcodes() {
-        
         // wraps an ADD operation with 2 raw inputs
-        let add_operation_wrapped = WrappedOpcode::new(0x01, vec![WrappedInput::Raw(U256::from(1u8)), WrappedInput::Raw(U256::from(2u8))]);
+        let add_operation_wrapped = WrappedOpcode::new(
+            0x01,
+            vec![
+                WrappedInput::Raw(U256::from(1u8)),
+                WrappedInput::Raw(U256::from(2u8)),
+            ],
+        );
         println!("{}", add_operation_wrapped);
 
         // wraps a CALLDATALOAD operation
-        let calldataload_wrapped = WrappedOpcode::new(0x35, vec![WrappedInput::Opcode(add_operation_wrapped)]);
+        let calldataload_wrapped =
+            WrappedOpcode::new(0x35, vec![WrappedInput::Opcode(add_operation_wrapped)]);
         println!("{}", calldataload_wrapped);
     }
 }
 
-
 #[cfg(test)]
 mod memory_tests {
     use crate::ether::evm::memory::Memory;
-
 
     #[test]
     fn test_mstore() {
@@ -528,22 +589,31 @@ mod memory_tests {
 mod storage_tests {
     use crate::ether::evm::storage::Storage;
 
-
     #[test]
     fn test_sstore_sload() {
         let mut storage = Storage::new();
 
         storage.store(String::from("01"), String::from("01"));
-        assert_eq!(storage.load(String::from("01")), String::from("0000000000000000000000000000000000000000000000000000000000000001"));
+        assert_eq!(
+            storage.load(String::from("01")),
+            String::from("0000000000000000000000000000000000000000000000000000000000000001")
+        );
 
-        storage.store(String::from("ff"), String::from("11223344556677889900aabbccddeeff11223344556677889900aabbccddeeff"));
-        assert_eq!(storage.load(String::from("ff")), String::from("11223344556677889900aabbccddeeff11223344556677889900aabbccddeeff"));
+        storage.store(
+            String::from("ff"),
+            String::from("11223344556677889900aabbccddeeff11223344556677889900aabbccddeeff"),
+        );
+        assert_eq!(
+            storage.load(String::from("ff")),
+            String::from("11223344556677889900aabbccddeeff11223344556677889900aabbccddeeff")
+        );
 
-        assert_eq!(storage.load(String::from("00")), String::from("0000000000000000000000000000000000000000000000000000000000000000"));
+        assert_eq!(
+            storage.load(String::from("00")),
+            String::from("0000000000000000000000000000000000000000000000000000000000000000")
+        );
     }
-
 }
-
 
 #[cfg(test)]
 mod types_tests {
@@ -551,19 +621,11 @@ mod types_tests {
 
     use crate::ether::evm::types::parse_function_parameters;
 
-
     #[test]
     fn test_simple_signature() {
         let solidity_type = "test(uint256)".to_string();
         let param_type = parse_function_parameters(solidity_type);
-        assert_eq!(
-            param_type,
-            Some(
-                vec![
-                    ParamType::Uint(256)
-                ]
-            )
-        );
+        assert_eq!(param_type, Some(vec![ParamType::Uint(256)]));
     }
 
     #[test]
@@ -572,12 +634,7 @@ mod types_tests {
         let param_type = parse_function_parameters(solidity_type);
         assert_eq!(
             param_type,
-            Some(
-                vec![
-                    ParamType::Uint(256),
-                    ParamType::String
-                ]
-            )
+            Some(vec![ParamType::Uint(256), ParamType::String])
         );
     }
 
@@ -587,67 +644,57 @@ mod types_tests {
         let param_type = parse_function_parameters(solidity_type);
         assert_eq!(
             param_type,
-            Some(
-                vec![
-                    ParamType::Uint(256),
-                    ParamType::Array(
-                        Box::new(ParamType::String)
-                    ),
-                    ParamType::Uint(256)
-                ]
-            )
+            Some(vec![
+                ParamType::Uint(256),
+                ParamType::Array(Box::new(ParamType::String)),
+                ParamType::Uint(256)
+            ])
         );
     }
 
     #[test]
     fn test_complex_signature() {
-        let solidity_type = "test(uint256,string,(address,address,uint24,address,uint256,uint256,uint256,uint160))".to_string();
+        let solidity_type =
+            "test(uint256,string,(address,address,uint24,address,uint256,uint256,uint256,uint160))"
+                .to_string();
         let param_type = parse_function_parameters(solidity_type);
         assert_eq!(
             param_type,
-            Some(
-                vec![
+            Some(vec![
+                ParamType::Uint(256),
+                ParamType::String,
+                ParamType::Tuple(vec![
+                    ParamType::Address,
+                    ParamType::Address,
+                    ParamType::Uint(24),
+                    ParamType::Address,
                     ParamType::Uint(256),
-                    ParamType::String,
-                    ParamType::Tuple(
-                        vec![
-                            ParamType::Address,
-                            ParamType::Address,
-                            ParamType::Uint(24),
-                            ParamType::Address,
-                            ParamType::Uint(256),
-                            ParamType::Uint(256),
-                            ParamType::Uint(256),
-                            ParamType::Uint(160)
-                        ]
-                    )
-                ]
-            )
+                    ParamType::Uint(256),
+                    ParamType::Uint(256),
+                    ParamType::Uint(160)
+                ])
+            ])
         );
     }
 
     #[test]
     fn test_tuple_signature() {
-        let solidity_type = "exactInputSingle((address,address,uint24,address,uint256,uint256,uint256,uint160))".to_string();
+        let solidity_type =
+            "exactInputSingle((address,address,uint24,address,uint256,uint256,uint256,uint160))"
+                .to_string();
         let param_type = parse_function_parameters(solidity_type);
         assert_eq!(
             param_type,
-            Some(
-                vec![
-                    ParamType::Tuple(
-                        vec![
-                            ParamType::Address,
-                            ParamType::Address,
-                            ParamType::Uint(24),
-                            ParamType::Address,
-                            ParamType::Uint(256),
-                            ParamType::Uint(256),
-                            ParamType::Uint(256),
-                            ParamType::Uint(160)
-                        ]
-                    )
-                ]
-            )
+            Some(vec![ParamType::Tuple(vec![
+                ParamType::Address,
+                ParamType::Address,
+                ParamType::Uint(24),
+                ParamType::Address,
+                ParamType::Uint(256),
+                ParamType::Uint(256),
+                ParamType::Uint(256),
+                ParamType::Uint(160)
+            ])])
         );
     }
 
@@ -657,29 +704,18 @@ mod types_tests {
         let param_type = parse_function_parameters(solidity_type);
         assert_eq!(
             param_type,
-            Some(
-                vec![
-                    ParamType::Tuple(
-                        vec![
-                            ParamType::Address,
-                            ParamType::Address,
-                            ParamType::Uint(24),
-                            ParamType::Address,
-                            ParamType::Uint(256),
-                            ParamType::Array(
-                                Box::new(ParamType::Tuple(
-                                    vec![
-                                        ParamType::Uint(256),
-                                        ParamType::Uint(256)
-                                    ]
-                                ))
-                            ),
-                            ParamType::Uint(160)
-                        ]
-                    )
-                ]
-            )
+            Some(vec![ParamType::Tuple(vec![
+                ParamType::Address,
+                ParamType::Address,
+                ParamType::Uint(24),
+                ParamType::Address,
+                ParamType::Uint(256),
+                ParamType::Array(Box::new(ParamType::Tuple(vec![
+                    ParamType::Uint(256),
+                    ParamType::Uint(256)
+                ]))),
+                ParamType::Uint(160)
+            ])])
         );
     }
-
 }

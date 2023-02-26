@@ -1,6 +1,4 @@
-use std::{
-    io::Read
-};
+use std::io::Read;
 
 use reqwest::blocking::get;
 use serde_json::Value;
@@ -11,13 +9,12 @@ pub async fn get_json_from_url(url: String, attempts_remaining: u8) -> Option<Va
         let res = match reqwest::get(url.clone()).await {
             Ok(res) => res,
             Err(_) => {
-    
                 // retry if we have attempts remaining
                 let attempts_remaining = attempts_remaining - 1;
                 if attempts_remaining == 0 {
-                    return None
+                    return None;
                 }
-    
+
                 std::thread::sleep(std::time::Duration::from_millis(500));
                 continue;
             }

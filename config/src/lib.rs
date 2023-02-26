@@ -1,21 +1,16 @@
-
-#[allow(deprecated)]
-use std::{env::home_dir};
 use clap::{AppSettings, Parser};
-use serde::{Deserialize, Serialize};
-use heimdall_common::{
-    io::{
-        file::{read_file, write_file},
-        logging::*,
-    }
+use heimdall_common::io::{
+    file::{read_file, write_file},
+    logging::*,
 };
-
+use serde::{Deserialize, Serialize};
+#[allow(deprecated)]
+use std::env::home_dir;
 
 pub static DEFAULT_CONFIG: &str = "rpc_url = \"\"
 local_rpc_url = \"http://localhost:8545\"
 etherscan_api_key = \"\"
 ";
-
 
 #[derive(Debug, Clone, Parser)]
 #[clap(about = "Display and edit the current configuration",
@@ -23,25 +18,21 @@ etherscan_api_key = \"\"
        global_setting = AppSettings::DeriveDisplayOrder, 
        override_usage = "heimdall config [OPTIONS]")]
 pub struct ConfigArgs {
-    
     /// The target key to update.
-    #[clap(required=false, default_value="")]
+    #[clap(required = false, default_value = "")]
     key: String,
 
     /// The value to set the key to.
-    #[clap(required=false, default_value="")]
+    #[clap(required = false, default_value = "")]
     value: String,
-
 }
-
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Configuration {
     pub rpc_url: String,
     pub local_rpc_url: String,
-    pub etherscan_api_key: String
+    pub etherscan_api_key: String,
 }
-
 
 #[allow(deprecated)]
 pub fn write_config(contents: String) {
@@ -49,17 +40,21 @@ pub fn write_config(contents: String) {
         Some(mut home) => {
             home.push(".bifrost");
             home.push("config.toml");
-            
-            let _ = write_file(&home.into_os_string().to_str().unwrap().to_string(), &contents);
+
+            let _ = write_file(
+                &home.into_os_string().to_str().unwrap().to_string(),
+                &contents,
+            );
         }
         None => {
             let (logger, _) = Logger::new("");
-            logger.error("couldn't resolve the bifrost directory. Is your $HOME variable set correctly?");
+            logger.error(
+                "couldn't resolve the bifrost directory. Is your $HOME variable set correctly?",
+            );
             std::process::exit(1)
         }
     }
 }
-
 
 #[allow(deprecated)]
 pub fn read_config() -> String {
@@ -67,14 +62,11 @@ pub fn read_config() -> String {
         Some(mut home) => {
             home.push(".bifrost");
             home.push("config.toml");
-            
-            if home.as_path().exists() {
 
+            if home.as_path().exists() {
                 // the file exists, read it
                 return read_file(&home.into_os_string().to_str().unwrap().to_string());
-            }
-            else {
-
+            } else {
                 // the file does not exist, create it
                 write_config(DEFAULT_CONFIG.to_string());
                 return read_file(&home.into_os_string().to_str().unwrap().to_string());
@@ -82,12 +74,13 @@ pub fn read_config() -> String {
         }
         None => {
             let (logger, _) = Logger::new("");
-            logger.error("couldn't resolve the bifrost directory. Is your $HOME variable set correctly?");
+            logger.error(
+                "couldn't resolve the bifrost directory. Is your $HOME variable set correctly?",
+            );
             std::process::exit(1)
         }
     }
 }
-
 
 pub fn get_config() -> Configuration {
     let contents = read_config();
@@ -96,7 +89,6 @@ pub fn get_config() -> Configuration {
     let config: Configuration = toml::from_str(&contents).unwrap();
     config
 }
-
 
 pub fn update_config(key: &String, value: &String) {
     let mut contents = get_config();
@@ -124,26 +116,22 @@ pub fn update_config(key: &String, value: &String) {
     write_config(serialized_config);
 }
 
-
 pub fn config(args: ConfigArgs) {
     let (logger, _) = Logger::new("");
     if !args.key.is_empty() {
-        
         if !args.value.is_empty() {
-            
             // read the config file and update the key/value pair
             update_config(&args.key, &args.value);
-            logger.success(&format!("updated configuration! Set \'{}\' = \'{}\' .", &args.key, &args.value));
-        }
-        else {
-
+            logger.success(&format!(
+                "updated configuration! Set \'{}\' = \'{}\' .",
+                &args.key, &args.value
+            ));
+        } else {
             // key is set, but no value is set
             logger.error("found key but no value to set. Please specify a value to set, use `heimdall config --help` for more information.");
             std::process::exit(1);
         }
-    }
-    else {
-
+    } else {
         // no key is set, print the config file
         println!("{:#?}", get_config());
         logger.info("use `heimdall config <KEY> <VALUE>` to set a key/value pair.");

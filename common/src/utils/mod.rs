@@ -1,2 +1,2 @@
-pub mod strings;
 pub mod http;
+pub mod strings;

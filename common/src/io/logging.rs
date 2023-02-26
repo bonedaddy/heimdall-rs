@@ -194,9 +194,7 @@ impl TraceFactory {
                     println!(
                         "{} {}",
                         if prefix.ends_with("└─") {
-                            prefix.to_string()
-                                .bold()
-                                .bright_white()
+                            prefix.to_string().bold().bright_white()
                         } else if message_index == 0 {
                             replace_last(prefix.to_string(), "│ ", " ├─")
                                 .bold()
@@ -212,7 +210,6 @@ impl TraceFactory {
 
                 // print the children
                 for (i, child) in trace.children.iter().enumerate() {
-
                     if i == trace.children.len() - 1 {
                         self.print_trace(
                             &format!("{}   └─", prefix).bold().bright_white(),
@@ -224,7 +221,6 @@ impl TraceFactory {
                             *child as usize - 1,
                         );
                     }
-                    
                 }
             }
             TraceCategory::Empty => {

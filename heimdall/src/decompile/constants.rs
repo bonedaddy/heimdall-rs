@@ -1,7 +1,6 @@
 use fancy_regex::Regex;
 use lazy_static::lazy_static;
 
-
 lazy_static! {
 
     // The following regex is used as a detector for AND bitmasks
@@ -16,8 +15,8 @@ lazy_static! {
 
     // detects a memory access
     pub static ref MEM_ACCESS_REGEX: Regex = Regex::new(r"memory\[.*\]").unwrap();
-    
-    pub static ref DECOMPILED_SOURCE_HEADER: String = 
+
+    pub static ref DECOMPILED_SOURCE_HEADER: String =
 "// SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 

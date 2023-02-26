@@ -1,5 +1,3 @@
-
-
 #[cfg(test)]
 mod logging_tests {
     use std::time::Instant;

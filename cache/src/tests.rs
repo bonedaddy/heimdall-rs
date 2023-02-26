@@ -1,15 +1,12 @@
-
 #[allow(deprecated)]
 #[cfg(test)]
 mod tests {
+    use crate::{check_expiry, clear_cache, delete_cache, exists, keys, read_cache, store_cache};
+    use serde::{Deserialize, Serialize};
     use std::env::home_dir;
-    use serde::{Serialize, Deserialize};
-    use crate::{store_cache, read_cache, check_expiry, keys, clear_cache, exists, delete_cache};
-
 
     #[test]
     fn test_store_cache() {
-
         store_cache("key", "value".to_string(), None);
 
         // assert cached file exists
@@ -17,7 +14,6 @@ mod tests {
         let cache_dir = home.join(".bifrost").join("cache");
         let cache_file = cache_dir.join("key.bin");
         assert!(cache_file.exists());
-
     }
 
     #[test]
@@ -32,7 +28,6 @@ mod tests {
 
     #[test]
     fn test_store_struct() {
-            
         #[derive(Serialize, Deserialize, Debug)]
         struct TestStruct {
             name: String,
@@ -51,12 +46,10 @@ mod tests {
         let cache_dir = home.join(".bifrost").join("cache");
         let cache_file = cache_dir.join("struct.bin");
         assert!(cache_file.exists());
-    
     }
 
     #[test]
     fn test_get_struct() {
-
         #[derive(Serialize, Deserialize, Debug)]
         struct TestStruct {
             name: String,
@@ -114,7 +107,9 @@ mod tests {
         store_cache("e", "some_value", None);
         store_cache("f", "some_value", None);
 
-        assert!(vec!["a", "b", "c", "d", "e", "f"].iter().all(|key| {keys("*").contains(&key.to_string())}));
+        assert!(vec!["a", "b", "c", "d", "e", "f"]
+            .iter()
+            .all(|key| { keys("*").contains(&key.to_string()) }));
     }
 
     #[test]

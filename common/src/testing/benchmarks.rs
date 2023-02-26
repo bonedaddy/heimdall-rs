@@ -1,9 +1,9 @@
-use std::{time::Instant, thread, io, io::Write, future::Future};
+use std::{future::Future, io, io::Write, thread, time::Instant};
 
 pub async fn benchmark<F, Fut>(benchmark_name: &str, runs: usize, to_bench: F)
-where 
+where
     F: Fn() -> Fut,
-    Fut: Future<Output =  ()>
+    Fut: Future<Output = ()>,
 {
     let mut time = 0usize;
     let mut max = usize::MIN;
@@ -16,7 +16,7 @@ where
         let start_time = Instant::now();
         let _ = to_bench().await;
         let end_time = start_time.elapsed().as_millis() as usize;
-        
+
         max = std::cmp::max(max, end_time);
         min = std::cmp::min(min, end_time);
         time += end_time;
@@ -27,8 +27,9 @@ where
             "  {}:\n    {}ms ± {}ms per run ( with {} runs ).\n\n",
             benchmark_name,
             time / runs,
-            std::cmp::max(max-(time / runs), (time / runs)-min),
+            std::cmp::max(max - (time / runs), (time / runs) - min),
             runs
-        ).as_bytes()
+        )
+        .as_bytes(),
     );
 }

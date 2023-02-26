@@ -18,7 +18,6 @@ impl Memory {
     }
 
     pub fn extend(&mut self, offset: u128, size: u128) {
-        
         // calculate the new size of the memory
         let r = (offset + size) % 32;
         let new_mem_size: u128;
@@ -42,7 +41,6 @@ impl Memory {
     // stores a bytearray in the memory at offset
     pub fn store(&mut self, mut offset: usize, mut size: usize, mut value: String) {
         if value.len() % 2 == 0 {
-
             // cap offset to 2**16 for optimization
             if offset > 65536 {
                 offset = 65536;
@@ -77,7 +75,6 @@ impl Memory {
 
     // read a value from the memory at the given offset, with a fixed size
     pub fn read(&self, offset: usize, size: usize) -> String {
-
         // cap size to 2**16 for optimization
         if size > 65536 || offset > 65536 {
             return "00".repeat(size).to_string();

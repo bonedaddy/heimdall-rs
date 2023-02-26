@@ -1,11 +1,11 @@
-use std::{collections::HashMap, time::Duration};
-use std::sync::{Arc, Mutex};
-use std::thread;
 use heimdall_common::{
     ether::signatures::{resolve_function_signature, ResolvedFunction},
     io::logging::Logger,
 };
 use indicatif::ProgressBar;
+use std::sync::{Arc, Mutex};
+use std::thread;
+use std::{collections::HashMap, time::Duration};
 
 use super::util::Function;
 
@@ -14,13 +14,21 @@ pub async fn resolve_function_selectors(
     selectors: Vec<String>,
     logger: &Logger,
 ) -> HashMap<String, Vec<ResolvedFunction>> {
-    let resolved_functions: Arc<Mutex<HashMap<String, Vec<ResolvedFunction>>>> = Arc::new(Mutex::new(HashMap::new()));
-    let resolve_progress: Arc<Mutex<ProgressBar>> = Arc::new(Mutex::new(ProgressBar::new_spinner()));
+    let resolved_functions: Arc<Mutex<HashMap<String, Vec<ResolvedFunction>>>> =
+        Arc::new(Mutex::new(HashMap::new()));
+    let resolve_progress: Arc<Mutex<ProgressBar>> =
+        Arc::new(Mutex::new(ProgressBar::new_spinner()));
 
     let mut threads = Vec::new();
 
-    resolve_progress.lock().unwrap().enable_steady_tick(Duration::from_millis(100));
-    resolve_progress.lock().unwrap().set_style(logger.info_spinner());
+    resolve_progress
+        .lock()
+        .unwrap()
+        .enable_steady_tick(Duration::from_millis(100));
+    resolve_progress
+        .lock()
+        .unwrap()
+        .set_style(logger.info_spinner());
 
     for selector in selectors {
         let function_clone = resolved_functions.clone();
@@ -32,13 +40,15 @@ pub async fn resolve_function_selectors(
                 Some(function) => {
                     let mut _resolved_functions = function_clone.lock().unwrap();
                     let mut _resolve_progress = resolve_progress.lock().unwrap();
-                    _resolve_progress.set_message(format!("resolved {} selectors...", _resolved_functions.len()));
+                    _resolve_progress.set_message(format!(
+                        "resolved {} selectors...",
+                        _resolved_functions.len()
+                    ));
                     _resolved_functions.insert(selector, function);
                 }
-                None => {},
+                None => {}
             }
         }));
-        
     }
 
     // wait for all threads to finish
@@ -57,11 +67,9 @@ pub fn match_parameters(
     resolved_functions: Vec<ResolvedFunction>,
     function: &Function,
 ) -> Vec<ResolvedFunction> {
-
     let mut matched_functions: Vec<ResolvedFunction> = Vec::new();
 
     for mut resolved_function in resolved_functions {
-
         // skip checking if length of parameters is different
         resolved_function.inputs.retain(|x| !x.is_empty());
         if resolved_function.inputs.len() == function.arguments.len() {
@@ -71,20 +79,17 @@ pub fn match_parameters(
             for (index, input) in resolved_function.inputs.iter().enumerate() {
                 match function.arguments.get(&index) {
                     Some((_, potential_types)) => {
-
                         // arrays are typically recorded as bytes by the decompiler's potential types
                         if input.contains("[]") {
                             if !potential_types.contains(&"bytes".to_string()) {
                                 continue;
                             }
-                        } 
-                        else if !potential_types.contains(input) {
+                        } else if !potential_types.contains(input) {
                             matched = false;
                             break;
                         }
                     }
                     None => {
-
                         // parameter not found
                         matched = false;
                         break;

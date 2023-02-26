@@ -6,36 +6,30 @@ pub fn decode_hex(s: &str) -> Result<Vec<u8>, ParseIntError> {
         .collect()
 }
 
-
 // encode a hex into a string
 pub fn encode_hex(s: Vec<u8>) -> String {
-    s.iter()
-        .map(|b| format!("{:02x}", b))
-        .collect()
+    s.iter().map(|b| format!("{:02x}", b)).collect()
 }
 
 use std::{
     fs::File,
-    io::{Write, Read}, process::Command, num::ParseIntError
+    io::{Read, Write},
+    num::ParseIntError,
+    process::Command,
 };
-
 
 pub fn write_file(_path: &String, contents: &String) -> Option<String> {
     let path = std::path::Path::new(_path);
     let prefix = path.parent().unwrap();
     std::fs::create_dir_all(prefix).unwrap();
-    
+
     let mut file = match File::create(path) {
         Ok(file) => file,
-        Err(_) => {
-            return None
-        }
+        Err(_) => return None,
     };
     match file.write_all(contents.as_bytes()) {
-        Ok(_) => {},
-        Err(_) => {
-            return None
-        }
+        Ok(_) => {}
+        Err(_) => return None,
     }
 
     return Some(_path.to_string());
@@ -45,16 +39,12 @@ pub fn read_file(_path: &String) -> Option<String> {
     let path = std::path::Path::new(_path);
     let mut file = match File::open(path) {
         Ok(file) => file,
-        Err(_) => {
-            return None
-        }
+        Err(_) => return None,
     };
     let mut contents = String::new();
     match file.read_to_string(&mut contents) {
-        Ok(_) => {},
-        Err(_) => {
-            return None
-        }
+        Ok(_) => {}
+        Err(_) => return None,
     }
     return Some(contents);
 }
@@ -67,9 +57,9 @@ pub fn delete_path(_path: &String) -> bool {
     {
         Ok(_) => {
             return true;
-        },
+        }
         Err(_) => {
             return false;
-        },
+        }
     }
 }

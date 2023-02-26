@@ -1,9 +1,17 @@
-use std::{time::Duration, collections::HashMap};
+use std::{collections::HashMap, time::Duration};
 
-use heimdall_common::{io::{logging::{TraceFactory, Logger}, file::{short_path, write_file, write_lines_to_file}}, ether::signatures::{ResolvedError, ResolvedLog}};
+use heimdall_common::{
+    ether::signatures::{ResolvedError, ResolvedLog},
+    io::{
+        file::{short_path, write_file, write_lines_to_file},
+        logging::{Logger, TraceFactory},
+    },
+};
 use indicatif::ProgressBar;
 
-use super::{DecompilerArgs, util::Function, constants::DECOMPILED_SOURCE_HEADER, postprocess::postprocess};
+use super::{
+    constants::DECOMPILED_SOURCE_HEADER, postprocess::postprocess, util::Function, DecompilerArgs,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -32,23 +40,22 @@ struct ErrorABI {
     #[serde(rename = "type")]
     type_: String,
     name: String,
-    inputs: Vec<ABIToken>
+    inputs: Vec<ABIToken>,
 }
-
 
 #[derive(Serialize, Deserialize)]
 struct EventABI {
     #[serde(rename = "type")]
     type_: String,
     name: String,
-    inputs: Vec<ABIToken>
+    inputs: Vec<ABIToken>,
 }
 
 #[derive(Serialize, Deserialize)]
 enum ABIStructure {
     Function(FunctionABI),
     Error(ErrorABI),
-    Event(EventABI)
+    Event(EventABI),
 }
 
 pub fn build_output(
@@ -59,7 +66,7 @@ pub fn build_output(
     all_resolved_events: HashMap<String, ResolvedLog>,
     logger: &Logger,
     trace: &mut TraceFactory,
-    trace_parent: u32
+    trace_parent: u32,
 ) {
     let progress_bar = ProgressBar::new_spinner();
     progress_bar.enable_steady_tick(Duration::from_millis(100));
@@ -76,13 +83,8 @@ pub fn build_output(
         progress_bar.set_message(format!("writing ABI for '0x{}'", function.selector));
 
         // get the function's name and parameters for both resolved and unresolved functions
-        let (
-            function_name,
-            function_inputs,
-            function_outputs,
-        ) = match &function.resolved_function {
+        let (function_name, function_inputs, function_outputs) = match &function.resolved_function {
             Some(resolved_function) => {
-
                 // get the function's name and parameters from the resolved function
                 let mut inputs = Vec::new();
                 let mut outputs = Vec::new();
@@ -107,14 +109,15 @@ pub fn build_output(
                 }
 
                 (resolved_function.name.clone(), inputs, outputs)
-            },
+            }
             None => {
-
                 // if the function is unresolved, use the decompiler's potential types
                 let mut inputs = Vec::new();
                 let mut outputs = Vec::new();
 
-                for (index, (_, (_, potential_types))) in function.arguments.clone().iter().enumerate() {
+                for (index, (_, (_, potential_types))) in
+                    function.arguments.clone().iter().enumerate()
+                {
                     inputs.push(ABIToken {
                         name: format!("arg{index}"),
                         internal_type: potential_types[0].to_owned(),
@@ -134,7 +137,7 @@ pub fn build_output(
                 }
 
                 (format!("Unresolved_{}", function.selector), inputs, outputs)
-            }            
+            }
         };
 
         // determine the state mutability of the function
@@ -145,27 +148,22 @@ pub fn build_output(
                 false => match function.view {
                     true => "view",
                     false => "nonpayable",
-                }
+                },
             },
         };
 
         let constant = state_mutability == "pure" && function_inputs.is_empty();
 
         // add the function to the ABI
-        abi.push(
-            ABIStructure::Function(
-                FunctionABI {
-                    type_: "function".to_string(),
-                    name: function_name,
-                    inputs: function_inputs,
-                    outputs: function_outputs,
-                    state_mutability: state_mutability.to_string(),
-                    constant: constant,
-                }
-            )
-        );
+        abi.push(ABIStructure::Function(FunctionABI {
+            type_: "function".to_string(),
+            name: function_name,
+            inputs: function_inputs,
+            outputs: function_outputs,
+            state_mutability: state_mutability.to_string(),
+            constant: constant,
+        }));
 
-        
         // write the function's custom errors
         for (error_selector, resolved_error) in &function.errors {
             progress_bar.set_message(format!("writing ABI for '0x{error_selector}'"));
@@ -184,26 +182,18 @@ pub fn build_output(
                         }
                     }
 
-                    abi.push(
-                        ABIStructure::Error(
-                            ErrorABI {
-                                type_: "error".to_string(),
-                                name: resolved_error.name.clone(),
-                                inputs: inputs,
-                            }
-                        )
-                    );
-                },
+                    abi.push(ABIStructure::Error(ErrorABI {
+                        type_: "error".to_string(),
+                        name: resolved_error.name.clone(),
+                        inputs: inputs,
+                    }));
+                }
                 None => {
-                    abi.push(
-                        ABIStructure::Error(
-                            ErrorABI {
-                                type_: "error".to_string(),
-                                name: format!("CustomError_{error_selector}"),
-                                inputs: Vec::new(),
-                            }
-                        )
-                    );
+                    abi.push(ABIStructure::Error(ErrorABI {
+                        type_: "error".to_string(),
+                        name: format!("CustomError_{error_selector}"),
+                        inputs: Vec::new(),
+                    }));
                 }
             }
         }
@@ -226,26 +216,18 @@ pub fn build_output(
                         }
                     }
 
-                    abi.push(
-                        ABIStructure::Error(
-                            ErrorABI {
-                                type_: "event".to_string(),
-                                name: resolved_event.name.clone(),
-                                inputs: inputs,
-                            }
-                        )
-                    );
-                },
+                    abi.push(ABIStructure::Error(ErrorABI {
+                        type_: "event".to_string(),
+                        name: resolved_event.name.clone(),
+                        inputs: inputs,
+                    }));
+                }
                 None => {
-                    abi.push(
-                        ABIStructure::Error(
-                            ErrorABI {
-                                type_: "event".to_string(),
-                                name: format!("Event_{}", event_selector.get(0..8).unwrap()),
-                                inputs: Vec::new(),
-                            }
-                        )
-                    );
+                    abi.push(ABIStructure::Error(ErrorABI {
+                        type_: "event".to_string(),
+                        name: format!("Event_{}", event_selector.get(0..8).unwrap()),
+                        inputs: Vec::new(),
+                    }));
                 }
             }
         }
@@ -253,17 +235,20 @@ pub fn build_output(
 
     // write the ABI to a file
     write_file(
-        &abi_output_path, 
+        &abi_output_path,
         &format!(
             "[{}]",
-            abi.iter().map(|x| {
-                match x {
-                    ABIStructure::Function(x) => serde_json::to_string_pretty(x).unwrap(),
-                    ABIStructure::Error(x) => serde_json::to_string_pretty(x).unwrap(),
-                    ABIStructure::Event(x) => serde_json::to_string_pretty(x).unwrap(),
-                }
-            }).collect::<Vec<String>>().join(",\n")
-        )
+            abi.iter()
+                .map(|x| {
+                    match x {
+                        ABIStructure::Function(x) => serde_json::to_string_pretty(x).unwrap(),
+                        ABIStructure::Error(x) => serde_json::to_string_pretty(x).unwrap(),
+                        ABIStructure::Event(x) => serde_json::to_string_pretty(x).unwrap(),
+                    }
+                })
+                .collect::<Vec<String>>()
+                .join(",\n")
+        ),
     );
 
     progress_bar.suspend(|| {
@@ -274,21 +259,16 @@ pub fn build_output(
     let mut decompiled_output: Vec<String> = Vec::new();
 
     trace.add_call(
-        trace_parent, 
-        line!(), 
-        "heimdall".to_string(), 
+        trace_parent,
+        line!(),
+        "heimdall".to_string(),
         "build_output".to_string(),
-        vec![args.target.to_string()], 
-        short_path(&decompiled_output_path)
+        vec![args.target.to_string()],
+        short_path(&decompiled_output_path),
     );
-    
+
     // write the header to the output file
-    decompiled_output.push(
-        DECOMPILED_SOURCE_HEADER.replace(
-            "{}", 
-            env!("CARGO_PKG_VERSION")
-        )
-    );
+    decompiled_output.push(DECOMPILED_SOURCE_HEADER.replace("{}", env!("CARGO_PKG_VERSION")));
 
     decompiled_output.push(String::from("contract DecompiledContract {"));
 
@@ -298,11 +278,14 @@ pub fn build_output(
         // build the function's header and parameters
         let function_modifiers = format!(
             "public {}{}",
-            if function.pure { "pure " }
-            else if function.view { "view " }
-            else { "" },
-            if function.payable { "payable " }
-            else { "" },
+            if function.pure {
+                "pure "
+            } else if function.view {
+                "view "
+            } else {
+                ""
+            },
+            if function.payable { "payable " } else { "" },
         );
         let function_returns = format!(
             "returns ({}) {{",
@@ -312,59 +295,74 @@ pub fn build_output(
                 String::from("")
             }
         );
-        
+
         let function_header = match function.resolved_function {
             Some(resolved_function) => {
                 format!(
                     "function {}({}) {}{}",
                     resolved_function.name,
-
-                    resolved_function.inputs.iter().enumerate().map(|(index, solidity_type)| {
-                        format!(
-                            "{} {}arg{}",
-                            solidity_type,
-
-                            if solidity_type.contains("[]") || 
-                               solidity_type.contains('(') || 
-                               ["string", "bytes"].contains(&solidity_type.as_str()) {"memory "} 
-                            else { "" },
-
-                            index
-                        )
-                    }).collect::<Vec<String>>().join(", "),
-
+                    resolved_function
+                        .inputs
+                        .iter()
+                        .enumerate()
+                        .map(|(index, solidity_type)| {
+                            format!(
+                                "{} {}arg{}",
+                                solidity_type,
+                                if solidity_type.contains("[]")
+                                    || solidity_type.contains('(')
+                                    || ["string", "bytes"].contains(&solidity_type.as_str())
+                                {
+                                    "memory "
+                                } else {
+                                    ""
+                                },
+                                index
+                            )
+                        })
+                        .collect::<Vec<String>>()
+                        .join(", "),
                     function_modifiers,
-                    if function.returns.is_some() { function_returns }
-                    else { String::from("{") },
+                    if function.returns.is_some() {
+                        function_returns
+                    } else {
+                        String::from("{")
+                    },
                 )
-            },
+            }
             None => {
-                
                 // sort arguments by their calldata index
                 let mut sorted_arguments: Vec<_> = function.arguments.clone().into_iter().collect();
-                sorted_arguments.sort_by(|x,y| x.0.cmp(&y.0));
+                sorted_arguments.sort_by(|x, y| x.0.cmp(&y.0));
 
                 format!(
                     "function Unresolved_{}({}) {}{}",
                     function.selector,
-
-                    sorted_arguments.iter().map(|(index, (_, potential_types))| {
-                        format!(
-                            "{} {}arg{}",
-                            potential_types[0],
-
-                            if potential_types[0].contains("[]") || 
-                            potential_types[0].contains('(') || 
-                               ["string", "bytes"].contains(&potential_types[0].as_str()) {"memory "} 
-                            else { "" },
-
-                            index
-                        )
-                    }).collect::<Vec<String>>().join(", "),
-
+                    sorted_arguments
+                        .iter()
+                        .map(|(index, (_, potential_types))| {
+                            format!(
+                                "{} {}arg{}",
+                                potential_types[0],
+                                if potential_types[0].contains("[]")
+                                    || potential_types[0].contains('(')
+                                    || ["string", "bytes"].contains(&potential_types[0].as_str())
+                                {
+                                    "memory "
+                                } else {
+                                    ""
+                                },
+                                index
+                            )
+                        })
+                        .collect::<Vec<String>>()
+                        .join(", "),
                     function_modifiers,
-                    if function.returns.is_some() { function_returns }
-                    else { String::from("{") },
+                    if function.returns.is_some() {
+                        function_returns
+                    } else {
+                        String::from("{")
+                    },
                 )
             }
         };
@@ -373,7 +371,14 @@ pub fn build_output(
         decompiled_output.extend(vec![
             String::new(),
             format!("/// @custom:selector    0x{}", function.selector),
-            format!("/// @custom:name        {}", function_header.replace("function ", "").split('(').next().unwrap()),
+            format!(
+                "/// @custom:name        {}",
+                function_header
+                    .replace("function ", "")
+                    .split('(')
+                    .next()
+                    .unwrap()
+            ),
         ]);
 
         for notice in function.notices {
@@ -382,12 +387,14 @@ pub fn build_output(
 
         // sort arguments by their calldata index
         let mut sorted_arguments: Vec<_> = function.arguments.into_iter().collect();
-        sorted_arguments.sort_by(|x,y| x.0.cmp(&y.0));
+        sorted_arguments.sort_by(|x, y| x.0.cmp(&y.0));
 
         for (index, (_, solidity_type)) in sorted_arguments {
-            decompiled_output.push(format!("/// @param              arg{index} {solidity_type:?}"));
+            decompiled_output.push(format!(
+                "/// @param              arg{index} {solidity_type:?}"
+            ));
         }
-        
+
         decompiled_output.push(function_header);
 
         // build the function's body
@@ -406,13 +413,15 @@ pub fn build_output(
                 decompiled_output,
                 all_resolved_errors,
                 all_resolved_events,
-                &progress_bar
-            )
+                &progress_bar,
+            ),
         );
-        logger.success(&format!("wrote decompiled contract to '{}' .", &decompiled_output_path));
+        logger.success(&format!(
+            "wrote decompiled contract to '{}' .",
+            &decompiled_output_path
+        ));
         progress_bar.finish_and_clear();
-    }
-    else {
+    } else {
         progress_bar.finish_and_clear();
     }
 }

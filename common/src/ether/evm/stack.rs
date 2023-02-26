@@ -27,19 +27,20 @@ impl Stack {
 
     // Push a value onto the stack.
     pub fn push(&mut self, value: &str, operation: WrappedOpcode) {
-        self.stack.push_front(
-            StackFrame {
-                value: U256::from_str(&value).unwrap(),
-                operation,
-            }
-        );
+        self.stack.push_front(StackFrame {
+            value: U256::from_str(&value).unwrap(),
+            operation,
+        });
     }
 
     // Pop a value off the stack.
     pub fn pop(&mut self) -> StackFrame {
         match self.stack.pop_front() {
             Some(value) => value,
-            None => StackFrame { value: U256::from(0u8), operation: WrappedOpcode::default() },
+            None => StackFrame {
+                value: U256::from(0u8),
+                operation: WrappedOpcode::default(),
+            },
         }
     }
 
@@ -78,7 +79,10 @@ impl Stack {
     pub fn peek(&self, index: usize) -> StackFrame {
         match self.stack.get(index) {
             Some(value) => value.to_owned(),
-            None => StackFrame { value: U256::from(0u8), operation: WrappedOpcode::default() },
+            None => StackFrame {
+                value: U256::from(0u8),
+                operation: WrappedOpcode::default(),
+            },
         }
     }
 
