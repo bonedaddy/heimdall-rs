@@ -299,7 +299,7 @@ pub fn cfg(args: CFGArgs) {
     );
 
     // get a map of possible jump destinations
-    let (map, jumpdest_count) = map_contract(&evm.clone());
+    let (map, jumpdest_count) = map_contract(&evm);
 
     // add jumpdests to the trace
     trace.add_info(

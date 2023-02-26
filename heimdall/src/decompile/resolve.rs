@@ -4,7 +4,7 @@ use heimdall_common::{
 };
 use indicatif::ProgressBar;
 use std::sync::{Arc, Mutex};
-use std::thread;
+
 use std::{collections::HashMap, time::Duration};
 
 use super::util::Function;

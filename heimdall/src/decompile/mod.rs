@@ -284,8 +284,7 @@ pub async fn decompile(args: DecompilerArgs) {
         ));
     }
     logger.info(&format!(
-        "performing symbolic execution on '{}' .",
-        shortened_target
+        "performing symbolic execution on '{shortened_target}' ."
     ));
 
     let decompilation_progress = ProgressBar::new_spinner();

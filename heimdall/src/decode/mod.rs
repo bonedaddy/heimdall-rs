@@ -25,7 +25,7 @@ use strsim::normalized_damerau_levenshtein as similarity;
 #[derive(Debug, Clone, Parser)]
 #[clap(about = "Decode calldata into readable types",
        after_help = "For more information, read the wiki: https://jbecker.dev/r/heimdall-rs/wiki",
-       global_setting = AppSettings::DeriveDisplayOrder, 
+       global_setting = AppSettings::DeriveDisplayOrder,
        override_usage = "heimdall decode <TARGET> [OPTIONS]")]
 pub struct DecodeArgs {
     /// The target to decode, either a transaction hash or string of bytes.
@@ -437,7 +437,7 @@ pub async fn decode_calldata(calldata: String) -> Option<Vec<ResolvedFunction>> 
                 let mut params: Vec<Param> = Vec::new();
                 for (i, input) in inputs.iter().enumerate() {
                     params.push(Param {
-                        name: format!("arg{}", i),
+                        name: format!("arg{i}"),
                         kind: input.to_owned(),
                         internal_type: None,
                     });
@@ -455,9 +455,9 @@ pub async fn decode_calldata(calldata: String) -> Option<Vec<ResolvedFunction>> 
                     Ok(decoded_function_call) => {
                         // decode the function call in trimmed bytes, removing 0s, because contracts can use nonstandard sized words
                         // and padding is hard
-                        let cleaned_bytes = decoded_function_call.encode_hex().replace("0", "");
+                        let cleaned_bytes = decoded_function_call.encode_hex().replace('0', "");
                         let decoded_function_call = match cleaned_bytes
-                            .split_once(&function_selector.replace("0", ""))
+                            .split_once(&function_selector.replace('0', ""))
                         {
                             Some(decoded_function_call) => decoded_function_call.1,
                             None => {
@@ -467,7 +467,7 @@ pub async fn decode_calldata(calldata: String) -> Option<Vec<ResolvedFunction>> 
                         };
 
                         // if the decoded function call matches (95%) the function signature, add it to the list of matches
-                        if similarity(decoded_function_call, &calldata[8..].replace("0", "")).abs()
+                        if similarity(decoded_function_call, &calldata[8..].replace('0', "")).abs()
                             >= 0.90
                         {
                             let mut found_match = potential_match.clone();
@@ -500,9 +500,9 @@ pub async fn decode_calldata(calldata: String) -> Option<Vec<ResolvedFunction>> 
         }
     }
 
-    if matches.len() == 0 {
+    if matches.is_empty() {
         return None;
     }
 
-    return Some(matches);
+    Some(matches)
 }

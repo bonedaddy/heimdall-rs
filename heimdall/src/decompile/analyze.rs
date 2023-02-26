@@ -256,12 +256,9 @@ impl VMTrace {
                                         function.logic[i].to_string(),
                                         ('(', ')'),
                                     );
-                                    let conditional = match function.logic[i]
+                                    let conditional = function.logic[i]
                                         .get(conditional.0 + 1..conditional.1 - 1)
-                                    {
-                                        Some(conditional) => conditional,
-                                        None => "decoding error",
-                                    };
+                                        .unwrap_or("decoding error");
 
                                     // we can negate the conditional to get the revert logic
                                     // TODO: make this a require statement, if revert is rlly gross but its technically correct
@@ -391,13 +388,9 @@ impl VMTrace {
                 let operations = instruction.input_operations[1].clone();
 
                 // add the sstore to the function's storage map
-                function.storage.insert(
-                    key,
-                    StorageFrame {
-                        value: value,
-                        operations: operations,
-                    },
-                );
+                function
+                    .storage
+                    .insert(key, StorageFrame { value, operations });
                 function.logic.push(format!(
                     "storage[{}] = {};",
                     instruction.input_operations[0].solidify(),
@@ -412,7 +405,7 @@ impl VMTrace {
                 function.memory.insert(
                     key,
                     StorageFrame {
-                        value: value,
+                        value,
                         operations: operation,
                     },
                 );

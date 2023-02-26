@@ -135,7 +135,7 @@ pub fn map_contract(evm: &VM) -> (VMTrace, u32) {
     // the VM is at the function entry point, begin tracing
     let mut branch_count = 0;
     (
-        recursive_map(&vm.clone(), &mut branch_count, &mut HashMap::new()),
+        recursive_map(&vm, &mut branch_count, &mut HashMap::new()),
         branch_count,
     )
 }

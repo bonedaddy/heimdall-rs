@@ -370,15 +370,15 @@ pub fn recursive_map(
                             // if a memory access in the jump condition is modified by the stack diff, its likely that we are in a loop
                             let mut memory_accesses = MEMORY_REGEX.find_iter(&jump_condition);
                             if stack_diff.iter().any(|frame| {
-                                return memory_accesses.any(|_match| {
+                                memory_accesses.any(|_match| {
                                     if _match.is_err() {
                                         return false;
                                     }
                                     let memory_access = _match.unwrap();
                                     let slice =
                                         &jump_condition[memory_access.start()..memory_access.end()];
-                                    return frame.operation.solidify().contains(slice);
-                                });
+                                    frame.operation.solidify().contains(slice)
+                                })
                             }) {
                                 return true;
                             }
@@ -386,22 +386,22 @@ pub fn recursive_map(
                             // if a storage access in the jump condition is modified by the stack diff, its likely that we are in a loop
                             let mut storage_accesses = STORAGE_REGEX.find_iter(&jump_condition);
                             if stack_diff.iter().any(|frame| {
-                                return storage_accesses.any(|_match| {
+                                storage_accesses.any(|_match| {
                                     if _match.is_err() {
                                         return false;
                                     }
                                     let storage_access = _match.unwrap();
                                     let slice = &jump_condition
                                         [storage_access.start()..storage_access.end()];
-                                    return frame.operation.solidify().contains(slice);
-                                });
+                                    frame.operation.solidify().contains(slice)
+                                })
                             }) {
                                 return true;
                             }
 
-                            return false;
+                            false
                         } else {
-                            return true;
+                            true
                         }
                     }) {
                         vm_trace.loop_detected = true;

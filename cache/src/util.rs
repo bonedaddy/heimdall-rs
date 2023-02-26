@@ -8,7 +8,7 @@ pub fn decode_hex(s: &str) -> Result<Vec<u8>, ParseIntError> {
 
 // encode a hex into a string
 pub fn encode_hex(s: Vec<u8>) -> String {
-    s.iter().map(|b| format!("{:02x}", b)).collect()
+    s.iter().map(|b| format!("{b:02x}")).collect()
 }
 
 use std::{
@@ -32,7 +32,7 @@ pub fn write_file(_path: &String, contents: &String) -> Option<String> {
         Err(_) => return None,
     }
 
-    return Some(_path.to_string());
+    Some(_path.to_string())
 }
 
 pub fn read_file(_path: &String) -> Option<String> {
@@ -46,20 +46,16 @@ pub fn read_file(_path: &String) -> Option<String> {
         Ok(_) => {}
         Err(_) => return None,
     }
-    return Some(contents);
+    Some(contents)
 }
 
 pub fn delete_path(_path: &String) -> bool {
     let path = std::path::Path::new(_path);
     match Command::new("rm")
-        .args(&["-rf", &path.to_str().unwrap()])
+        .args(["-rf", (path.to_str().unwrap())])
         .output()
     {
-        Ok(_) => {
-            return true;
-        }
-        Err(_) => {
-            return false;
-        }
+        Ok(_) => true,
+        Err(_) => false,
     }
 }
